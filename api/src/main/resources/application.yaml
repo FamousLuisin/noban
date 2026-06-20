@@ -1,0 +1,4 @@
+spring:
+  application:
+    name: noban
+    version: ${project.version:latest}

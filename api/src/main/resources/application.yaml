@@ -1,4 +1,12 @@
 spring:
   application:
     name: noban
-    version: ${project.version:latest}
+    version: ${NOBAN_VERSION:latest}
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/noban}
+    username: ${DATABASE_USERNAME:admin}
+    password: ${DATABASE_PASSWORD:admin}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false

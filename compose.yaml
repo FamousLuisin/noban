@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    container_name: database
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - noban-data:/var/lib/postgresql/data
+    networks:
+      - noban-network
+  
+  api:
+    image: nokizin/noban
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    container_name: api
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      NOBAN_VERSION: ${NOBAN_VERSION}
+    depends_on:
+      - db
+    networks:
+      - noban-network
+
+volumes:
+  noban-data:
+networks:
+  noban-network:

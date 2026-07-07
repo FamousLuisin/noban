@@ -1,4 +1,4 @@
-package com.noki.noban.api.security.entryPoint;
+package com.noki.noban.api.security.entrypoint;
 
 import java.io.IOException;
 

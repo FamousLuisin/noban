@@ -46,31 +46,23 @@ public class JwtService {
     }
 
     public String generateTokenResponse(String subject) {
-        try {
-            Date issuedAt = new Date(System.currentTimeMillis());
-            Date expirationDate = new Date(issuedAt.getTime() + this.EXPIRATION_TIME);
+        Date issuedAt = new Date(System.currentTimeMillis());
+        Date expirationDate = new Date(issuedAt.getTime() + this.EXPIRATION_TIME);
             
-            String token = Jwts.builder()
-                .issuer(this.ISSUER)
-                .subject(subject)
-                .expiration(expirationDate)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .signWith(PRIVATE_KEY)
-                .compact();
+        String token = Jwts.builder()
+            .issuer(this.ISSUER)
+            .subject(subject)
+            .expiration(expirationDate)
+            .issuedAt(new Date(System.currentTimeMillis()))
+            .signWith(PRIVATE_KEY)
+            .compact();
 
-            return token;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to generate token", e);
-        }
+        return token;
     }
 
     public String getSubject(String token) {
-        try {
-            Jws<Claims> claims =Jwts.parser().verifyWith(PUBLIC_KEY).build().parseSignedClaims(token);
-            return claims.getPayload().getSubject();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to parse token", e);
-        }
+        Jws<Claims> claims =Jwts.parser().verifyWith(PUBLIC_KEY).build().parseSignedClaims(token);
+        return claims.getPayload().getSubject();
     }
 
     private PrivateKey loadPrivateKey(Resource resource) {

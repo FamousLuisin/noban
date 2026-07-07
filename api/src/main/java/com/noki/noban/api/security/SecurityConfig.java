@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.noki.noban.api.security.entryPoint.CustomAuthenticationEntryPoint;
 import com.noki.noban.api.security.filter.UserAuthenticationFilter;
 
 @Configuration
@@ -28,8 +29,11 @@ public class SecurityConfig {
             "/swagger-ui.html"
     };
 
-    public SecurityConfig(UserAuthenticationFilter userAuthenticationFilter) {
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+    public SecurityConfig(UserAuthenticationFilter userAuthenticationFilter, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
         this.userAuthenticationFilter = userAuthenticationFilter;
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
 
     @Bean
@@ -50,6 +54,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(customAuthenticationEntryPoint))
                 .httpBasic(basic -> basic.disable())
                 .addFilterBefore(userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

@@ -41,7 +41,7 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
 
         String token = recoveryToken(request);
 
-        if (token != null) {
+        try {
             String subject = jwtService.getSubject(token);
             UserModel user = userRepository.findByEmail(subject);
             
@@ -49,8 +49,9 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        } else {
-            throw new RuntimeException("Token not found in the request");
+
+        } catch (Exception e) {
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);

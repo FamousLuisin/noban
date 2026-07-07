@@ -41,48 +41,40 @@ public class AuthService {
     }
 
     public JwtResponse register(RegisterRequest request) {
-        try {
-            RoleModel userRole = roleRepository.findByName(RoleModel.RoleType.ROLE_USER);
+        RoleModel userRole = roleRepository.findByName(RoleModel.RoleType.ROLE_USER);
 
-            UserModel newUser = new UserModel(
-                request.name(),
+        UserModel newUser = new UserModel(
+            request.name(),
+            request.email(),
+            passwordEncoder.encode(request.password()),
+            List.of(userRole)
+        );
+
+        userRepository.save(newUser);
+
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 request.email(),
-                passwordEncoder.encode(request.password()),
-                List.of(userRole)
-            );
+                request.password()
+        );
 
-            userRepository.save(newUser);
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    request.email(),
-                    request.password()
-            );
-
-            Authentication authentication = authenticationManager.authenticate(authenticationToken);
-
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();  
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();  
 			
-            return new JwtResponse(jwtService.generateTokenResponse(userDetails.getUsername()));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to register user", e);
-        }
+        return new JwtResponse(jwtService.generateTokenResponse(userDetails.getUsername()));
+        
     }
 
 	public JwtResponse login(LoginRequest request) {
-		try {
-			UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-					request.email(),
-					request.password()
-			);
+		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+				request.email(),
+				request.password()			
+        );
 
-			Authentication authentication = authenticationManager.authenticate(authenticationToken);
+		Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
-			CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();  
+		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();  
 			
-			return new JwtResponse(jwtService.generateTokenResponse(userDetails.getUsername()));
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to login user", e);
-		}
-
+		return new JwtResponse(jwtService.generateTokenResponse(userDetails.getUsername()));
 	}
 }

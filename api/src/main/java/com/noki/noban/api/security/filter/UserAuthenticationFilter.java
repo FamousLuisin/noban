@@ -43,7 +43,7 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String subject = jwtService.getSubject(token);
-            UserModel user = userRepository.findByEmail(subject);
+            UserModel user = userRepository.findByEmailWithRole(subject);
             
             CustomUserDetails userDetails = new CustomUserDetails(user);
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

@@ -29,11 +29,11 @@ public class UserModel {
     private String email;
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "tb_user_roles",
                joinColumns = @JoinColumn(name = "user_id"),
                inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private List<RoleModel> role;
+    private List<RoleModel> roles;
 
     @CreationTimestamp
     @Column(name = "created_at")
@@ -46,11 +46,11 @@ public class UserModel {
     public UserModel() {
     }
 
-    public UserModel(String name, String email, String password, List<RoleModel> role) {
+    public UserModel(String name, String email, String password, List<RoleModel> roles) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.role = role;
+        this.roles = roles;
     }
 
     public UUID getId() {
@@ -85,12 +85,12 @@ public class UserModel {
         this.password = password;
     }
 
-    public List<RoleModel> getRole() {
-        return role;
+    public List<RoleModel> getRoles() {
+        return roles;
     }
 
-    public void setRole(List<RoleModel> role) {
-        this.role = role;
+    public void setRoles(List<RoleModel> role) {
+        this.roles = role;
     }
 
     public LocalDateTime getCreatedAt() {

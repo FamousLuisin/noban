@@ -1,5 +1,6 @@
 package com.noki.noban.api.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -12,5 +13,5 @@ public interface UserRepository extends JpaRepository<UserModel, UUID> {
     
     @Query("SELECT u FROM UserModel u WHERE u.email = :email")
     @EntityGraph(attributePaths = "roles")
-    public UserModel findByEmailWithRole(String email);
+    public Optional<UserModel> findByEmailWithRole(String email);
 }

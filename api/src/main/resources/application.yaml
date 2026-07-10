@@ -20,4 +20,5 @@ jwt:
   public-key: ${JWT_PUBLIC_KEY:classpath:public.key}
   algorithm: ${JWT_ALGORITHM:EC}
   issuer: ${JWT_ISSUER:noban-api}
-  expiration-time: ${JWT_EXPIRATION_TIME:300000}
+  access-expiration-time: ${JWT_EXPIRATION_TIME:300000}
+  refresh-expiration-time: ${JWT_EXPIRATION_TIME:300000}

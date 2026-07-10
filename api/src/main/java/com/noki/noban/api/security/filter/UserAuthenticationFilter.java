@@ -4,15 +4,20 @@ import java.io.IOException;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.noki.noban.api.exceptions.InvalidJwtTokenException;
 import com.noki.noban.api.models.UserModel;
 import com.noki.noban.api.repository.UserRepository;
 import com.noki.noban.api.security.jwt.JwtService;
+import com.noki.noban.api.security.jwt.TokenType;
 import com.noki.noban.api.security.user.CustomUserDetails;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,16 +47,20 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
         String token = recoveryToken(request);
 
         try {
-            String subject = jwtService.getSubject(token);
-            UserModel user = userRepository.findByEmailWithRole(subject);
-            
+            String subject = jwtService.getSubject(token, TokenType.ACCESS);
+            UserModel user = userRepository.findByEmailWithRole(subject).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
             CustomUserDetails userDetails = new CustomUserDetails(user);
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        } catch (Exception e) {
+        } catch (JwtException | IllegalArgumentException e){
             SecurityContextHolder.clearContext();
+            throw new InvalidJwtTokenException("Invalid token");
+        } catch (AuthenticationException e){
+            SecurityContextHolder.clearContext();
+            throw e;
         }
 
         filterChain.doFilter(request, response);

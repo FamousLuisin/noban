@@ -21,55 +21,65 @@ import io.jsonwebtoken.Jwts;
 @Service
 public class JwtService {
     
-    private final PrivateKey PRIVATE_KEY;
+    private final PrivateKey privateKey;
+    private final PublicKey publicKey;
 
-    private final PublicKey PUBLIC_KEY;
+    private final String algorithm;
+    private final String issuer;
 
-    private final String ALGORITHM;
-
-    private final String ISSUER;
-    
-    private final long EXPIRATION_TIME;
+    private final long accessExpiresIn;
+    private final long refreshExpiresIn;
 
     public JwtService(
-            @Value("${jwt.private-key}") Resource PRIVATE_KEY, 
-            @Value("${jwt.public-key}") Resource PUBLIC_KEY,
-            @Value("${jwt.algorithm}") String ALGORITHM,
-            @Value("${jwt.issuer}") String ISSUER,
-            @Value("${jwt.expiration-time}") long EXPIRATION_TIME
-        ) {
-        this.ISSUER = ISSUER;
-        this.ALGORITHM = ALGORITHM;
-        this.EXPIRATION_TIME = EXPIRATION_TIME;
-        this.PRIVATE_KEY = this.loadPrivateKey(PRIVATE_KEY);
-        this.PUBLIC_KEY = this.loadPublicKey(PUBLIC_KEY);
+            @Value("${jwt.private-key}") Resource privateKeyResource,
+            @Value("${jwt.public-key}") Resource publicKeyResource,
+            @Value("${jwt.algorithm}") String algorithm,
+            @Value("${jwt.issuer}") String issuer,
+            @Value("${jwt.access-expiration-time}") long accessExpiresIn,
+            @Value("${jwt.refresh-expiration-time}") long refreshExpiresIn
+    ) {
+        this.algorithm = algorithm;
+        this.issuer = issuer;
+        this.accessExpiresIn = accessExpiresIn;
+        this.refreshExpiresIn = refreshExpiresIn;
+
+        this.privateKey = loadPrivateKey(privateKeyResource);
+        this.publicKey = loadPublicKey(publicKeyResource);
     }
 
-    public String generateTokenResponse(String subject) {
+    public String generateToken(String subject, TokenType type) {
         Date issuedAt = new Date(System.currentTimeMillis());
-        Date expirationDate = new Date(issuedAt.getTime() + this.EXPIRATION_TIME);
+        Date expirationDate = type.equals(TokenType.ACCESS) ? new Date(issuedAt.getTime() + this.accessExpiresIn) : new Date(issuedAt.getTime() + this.refreshExpiresIn);
             
         String token = Jwts.builder()
-            .issuer(this.ISSUER)
+            .issuer(this.issuer)
             .subject(subject)
             .expiration(expirationDate)
             .issuedAt(new Date(System.currentTimeMillis()))
-            .signWith(PRIVATE_KEY)
+            .claim("type", type.value())
+            .signWith(privateKey)
             .compact();
 
         return token;
     }
 
-    public String getSubject(String token) {
-        Jws<Claims> claims =Jwts.parser().verifyWith(PUBLIC_KEY).build().parseSignedClaims(token);
-        return claims.getPayload().getSubject();
+    public Jws<Claims> getClaims(String token, TokenType type){
+        return Jwts.parser().verifyWith(publicKey).require("type", type.value()).build().parseSignedClaims(token);
+    }
+
+    public String getSubject(String token, TokenType type) {
+        return getClaims(token, type).getPayload().getSubject();
+    }
+
+    public long getAccessExpiresIn() {
+        return accessExpiresIn;
     }
 
     private PrivateKey loadPrivateKey(Resource resource) {
         try {
             byte[] bytes = getKeyBytesPrivate(resource);
 
-            KeyFactory keyFactory = KeyFactory.getInstance(this.ALGORITHM);
+            KeyFactory keyFactory = KeyFactory.getInstance(this.algorithm);
 
             return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(bytes));
         } catch (Exception e) {
@@ -81,7 +91,7 @@ public class JwtService {
         try {
             byte[] bytes = getKeyBytesPublic(resource);
 
-            KeyFactory keyFactory = KeyFactory.getInstance(this.ALGORITHM);
+            KeyFactory keyFactory = KeyFactory.getInstance(this.algorithm);
 
             return keyFactory.generatePublic(new X509EncodedKeySpec(bytes));
         } catch (Exception e) {

@@ -2,6 +2,7 @@ package com.noki.noban.api.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -9,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ApiConfig {
     
     @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
+    ObjectMapper objectMapper(Jackson2ObjectMapperBuilder builder) {
+        return builder.build();
     }
 }

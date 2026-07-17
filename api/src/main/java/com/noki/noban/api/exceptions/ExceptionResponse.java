@@ -4,17 +4,19 @@ import java.time.LocalDateTime;
 
 import org.springframework.http.HttpStatus;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.noki.noban.api.serializer.CustomLocalDateSerializer;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class ExceptionResponse {
     
     private String message;
-    @JsonSerialize(using = CustomLocalDateSerializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
     private Integer status;
     private String error;
     private String uri;
+
+    public ExceptionResponse(){
+    }
 
     public ExceptionResponse(String message, HttpStatus status, String uri) {
         this.message = message;

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ExceptionResponse {
     
@@ -18,6 +19,7 @@ public class ExceptionResponse {
     public ExceptionResponse(){
     }
 
+    @JsonIgnore
     public ExceptionResponse(String message, HttpStatus status, String uri) {
         this.message = message;
         this.timestamp = LocalDateTime.now();

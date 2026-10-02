@@ -1,0 +1,9 @@
+CREATE TABLE tb_projects (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    owner_id UUID NOT NULL,
+    CONSTRAINT fk_owner FOREIGN KEY (owner_id) REFERENCES tb_users(id) ON DELETE CASCADE
+);

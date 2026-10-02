@@ -15,10 +15,13 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 import com.noki.noban.api.security.entrypoint.CustomAuthenticationEntryPoint;
 import com.noki.noban.api.security.filter.UserAuthenticationFilter;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private final UrlBasedCorsConfigurationSource corsConfigurationSource;
 
     private final UserAuthenticationFilter userAuthenticationFilter;
 
@@ -31,9 +34,10 @@ public class SecurityConfig {
 
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
-    public SecurityConfig(UserAuthenticationFilter userAuthenticationFilter, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+    public SecurityConfig(UserAuthenticationFilter userAuthenticationFilter, CustomAuthenticationEntryPoint customAuthenticationEntryPoint, UrlBasedCorsConfigurationSource corsConfigurationSource) {
         this.userAuthenticationFilter = userAuthenticationFilter;
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     @Bean
@@ -44,6 +48,7 @@ public class SecurityConfig {
                 .securityMatcher(AUTH_WHITELIST)
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .httpBasic(basic -> basic.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .build();
     }
 

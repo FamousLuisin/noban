@@ -1,4 +1,4 @@
-package com.noki.noban.api.unit.controller;
+package com.noki.noban.api.mvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

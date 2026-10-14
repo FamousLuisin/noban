@@ -46,8 +46,6 @@ public class ProjectService {
         
         newContributors = contributorsRepository.save(newContributors);
 
-        System.out.println("createdAt: " + newProject.getCreatedAt());
-
         return new ProjectResponse(
             newProject.getId(), 
             newProject.getName(), 
@@ -140,13 +138,13 @@ public class ProjectService {
         projectRepository.delete(project);
     }
 
-    private void commonProjectPermission(ProjectModel project, UserModel user){
+    protected void commonProjectPermission(ProjectModel project, UserModel user){
         Boolean isPermited = contributorsRepository.existsByProjectAndUser(project, user);
         if (!isPermited)
             throw new PermissionDeniedException("missing permission");
     }
 
-    private void projectPermissionWithRole(ProjectModel project, UserModel user, List<RoleType> roles){
+    protected void projectPermissionWithRole(ProjectModel project, UserModel user, List<RoleType> roles){
         Boolean isPermited = contributorsRepository.existsByProjectAndUserAndRoleIn(project, user, roles);
         if (!isPermited)
             throw new PermissionDeniedException("Missing permission");

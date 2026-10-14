@@ -13,11 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.noki.noban.api.dto.request.InviteRequest;
 import com.noki.noban.api.dto.request.ProjectRequest;
 import com.noki.noban.api.dto.response.UserProjectsResponse;
 import com.noki.noban.api.dto.response.ProjectResponse;
 import com.noki.noban.api.dto.response.ProjectUsersResponse;
 import com.noki.noban.api.security.user.CustomUserDetails;
+import com.noki.noban.api.services.InviteService;
 import com.noki.noban.api.services.ProjectService;
 
 import jakarta.validation.Valid;
@@ -32,10 +34,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequestMapping("/api/projects")
 public class ProjectController {
 
-    private ProjectService projectService;
+    private final ProjectService projectService;
+    private final InviteService inviteService;
 
-    public ProjectController(ProjectService projectService){
+    public ProjectController(ProjectService projectService, InviteService inviteService) {
         this.projectService = projectService;
+        this.inviteService = inviteService;
     }
     
     @PostMapping
@@ -113,5 +117,22 @@ public class ProjectController {
         projectService.deleteProject(id, userDetails.getUser());
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(path = "/{id}/invites")
+    public ResponseEntity<Void> createInvite(@RequestBody @Valid InviteRequest inviteRequest,
+                                          @PathVariable("id") String projectId) {
+        CustomUserDetails sender = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        inviteService.createInvite(inviteRequest, projectId, sender.getUser());
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping(path = "/{id}/invites")
+    public ResponseEntity<?> listProjectInvites(
+        @PathVariable("id") String projectId
+    ) {
+        CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(inviteService.listProjectInvites(projectId, user.getUser()));
     }
 }

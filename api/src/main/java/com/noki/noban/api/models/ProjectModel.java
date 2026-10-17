@@ -15,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
 @Table(name = "tb_projects") @Entity
@@ -41,6 +42,10 @@ public class ProjectModel {
 
     @OneToMany(mappedBy = "project")
     private List<ContributorsModel> contributors;
+
+    @OneToMany(mappedBy = "project")
+    @OrderBy("position ASC")
+    private List<StageModel> stages;
 
     public ProjectModel() {
     }
@@ -105,6 +110,14 @@ public class ProjectModel {
 
     public void setContributors(List<ContributorsModel> contributors) {
         this.contributors = contributors;
+    }
+
+    public List<StageModel> getStages() {
+        return stages;
+    }
+
+    public void setStages(List<StageModel> stages) {
+        this.stages = stages;
     }
 
     @Override

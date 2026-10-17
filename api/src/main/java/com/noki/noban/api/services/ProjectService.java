@@ -11,16 +11,20 @@ import com.noki.noban.api.dto.projection.UserSummaryProject;
 import com.noki.noban.api.dto.request.ProjectRequest;
 import com.noki.noban.api.dto.response.UserProjectsResponse;
 import com.noki.noban.api.dto.response.ProjectResponse;
+import com.noki.noban.api.dto.response.ProjectResponseWithStages;
 import com.noki.noban.api.dto.response.ProjectUsersResponse;
+import com.noki.noban.api.dto.response.StageResponse;
 import com.noki.noban.api.dto.response.UserResponse;
 import com.noki.noban.api.exceptions.PermissionDeniedException;
 import com.noki.noban.api.exceptions.ResourceNotFoundException;
 import com.noki.noban.api.models.ContributorsModel;
 import com.noki.noban.api.models.ProjectModel;
+import com.noki.noban.api.models.StageModel;
 import com.noki.noban.api.models.UserModel;
 import com.noki.noban.api.models.ContributorsModel.RoleType;
 import com.noki.noban.api.repository.ContributorsRepository;
 import com.noki.noban.api.repository.ProjectRepository;
+import com.noki.noban.api.repository.StageRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -29,14 +33,16 @@ public class ProjectService {
     
     private ProjectRepository projectRepository;
     private ContributorsRepository contributorsRepository;
+    private StageRepository stageRepository;
 
-    public ProjectService(ProjectRepository projectRepository, ContributorsRepository contributorsRepository){
+    public ProjectService(ProjectRepository projectRepository, ContributorsRepository contributorsRepository, StageRepository stageRepository){
         this.projectRepository = projectRepository;
         this.contributorsRepository = contributorsRepository;
+        this.stageRepository = stageRepository;
     }
 
     @Transactional 
-    public ProjectResponse createProject(ProjectRequest request, UserModel user){
+    public ProjectResponseWithStages createProject(ProjectRequest request, UserModel user){
         ProjectModel newProject = new ProjectModel(request.name(), request.description(), user);
 
         newProject = projectRepository.saveAndFlush(newProject);
@@ -46,13 +52,20 @@ public class ProjectService {
         
         newContributors = contributorsRepository.save(newContributors);
 
-        return new ProjectResponse(
+        List<StageModel> defaultStages = createDefaultStages(newProject);
+
+        List<StageResponse> stageResponses = defaultStages.stream().map(stage -> {
+            return new StageResponse(stage.getId(), stage.getName(), stage.getPosition());
+        }).toList();
+
+        return new ProjectResponseWithStages(
             newProject.getId(), 
             newProject.getName(), 
             newProject.getDescription(), 
             newProject.getCreatedAt(), 
             newProject.getUpdatedAt(),
-            new UserResponse(user.getId(), user.getName(), user.getEmail()) 
+            new UserResponse(user.getId(), user.getName(), user.getEmail()), 
+            stageResponses
         );
     }
 
@@ -107,6 +120,27 @@ public class ProjectService {
         );
     }
 
+    public ProjectResponseWithStages getProjectWithStages(String id, UserModel user) {
+        UUID uuid = UUID.fromString(id);
+        ProjectModel project = projectRepository.findByIdWithStages(uuid).orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        commonProjectPermission(project, user);
+
+        List<StageResponse> stageResponses = project.getStages().stream().map(stage -> {
+            return new StageResponse(stage.getId(), stage.getName(), stage.getPosition());
+        }).toList();
+
+        return new ProjectResponseWithStages(
+            project.getId(), 
+            project.getName(), 
+            project.getDescription(), 
+            project.getCreatedAt(), 
+            project.getUpdatedAt(),
+            new UserResponse(project.getOwner().getId(), project.getOwner().getName(), project.getOwner().getEmail()), 
+            stageResponses
+        );
+    }
+
     @Transactional 
     public ProjectResponse updateProject(String id, ProjectRequest request, UserModel user) {
         UUID uuid = UUID.fromString(id);
@@ -148,5 +182,13 @@ public class ProjectService {
         Boolean isPermited = contributorsRepository.existsByProjectAndUserAndRoleIn(project, user, roles);
         if (!isPermited)
             throw new PermissionDeniedException("Missing permission");
+    }
+
+    private List<StageModel> createDefaultStages(ProjectModel project) {
+        StageModel stage1 = new StageModel("To Do", 1, project);
+        StageModel stage2 = new StageModel("In Progress", 2, project);
+        StageModel stage3 = new StageModel("Done", 3, project);
+
+        return stageRepository.saveAll(List.of(stage1, stage2, stage3));
     }
 }

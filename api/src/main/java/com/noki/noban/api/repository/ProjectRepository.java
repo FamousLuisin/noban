@@ -1,9 +1,11 @@
 package com.noki.noban.api.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,4 +31,8 @@ public interface ProjectRepository extends JpaRepository<ProjectModel, UUID> {
         """
     )
     Page<UserSummaryProject> findUsersByProject(@Param(value = "project") ProjectModel project, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"stages", "owner"})
+    @Query("SELECT p FROM ProjectModel p WHERE p.id = :id")
+    Optional<ProjectModel> findByIdWithStages(@Param(value = "id") UUID id);
 }

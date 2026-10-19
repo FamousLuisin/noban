@@ -17,6 +17,7 @@ import com.noki.noban.api.dto.request.InviteRequest;
 import com.noki.noban.api.dto.request.ProjectRequest;
 import com.noki.noban.api.dto.response.UserProjectsResponse;
 import com.noki.noban.api.dto.response.ProjectResponse;
+import com.noki.noban.api.dto.response.ProjectResponseWithStages;
 import com.noki.noban.api.dto.response.ProjectUsersResponse;
 import com.noki.noban.api.security.user.CustomUserDetails;
 import com.noki.noban.api.services.InviteService;
@@ -43,11 +44,11 @@ public class ProjectController {
     }
     
     @PostMapping
-    public ResponseEntity<ProjectResponse> createProject(@RequestBody @Valid ProjectRequest request){
+    public ResponseEntity<ProjectResponseWithStages> createProject(@RequestBody @Valid ProjectRequest request){
 
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        ProjectResponse response = projectService.createProject(request, userDetails.getUser());
+        ProjectResponseWithStages response = projectService.createProject(request, userDetails.getUser());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -74,7 +75,7 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.OK).body(projectService.listMyProjects(userDetails.getUser(), pageRequest));
     }
     
-    @GetMapping(path = "/{id}")
+    @GetMapping(path = "/{id}/users")
     public ResponseEntity<ProjectUsersResponse> listProjectUsers(
         @PathVariable(name = "id") String id,
 
@@ -97,6 +98,18 @@ public class ProjectController {
 
         return ResponseEntity.ok(projectService.listProjectUsers(id, pageRequest, userDetails.getUser()));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProjectResponseWithStages> getProject(
+        @PathVariable(name = "id") String id
+    ) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        ProjectResponseWithStages response = projectService.getProjectWithStages(id, userDetails.getUser());
+
+        return ResponseEntity.ok(response);
+    }
+    
 
     @PutMapping(path = "/{id}")
     public ResponseEntity<ProjectResponse> updateProject(

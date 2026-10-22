@@ -1,17 +1,21 @@
 package com.noki.noban.api.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.noki.noban.api.dto.response.InviteResponse;
 import com.noki.noban.api.security.user.CustomUserDetails;
 import com.noki.noban.api.services.InviteService;
+
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,10 +31,25 @@ public class InviteController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<?> getMyInvites() {
+    public ResponseEntity<?> getMyInvites(
+        @RequestParam(name = "size", defaultValue = "10") 
+        @Min(value = 1, message = "Size must be greater than 0")
+        @Max(value = 100, message = "Size must be less than or equal to 100")
+        Integer size, 
+
+        @RequestParam(name = "page", defaultValue = "0") 
+        @Min(value = 0, message = "Page must be greater than or equal to 0")
+        Integer page,
+
+        @RequestParam(name = "direction", defaultValue = "ASC") 
+        Direction direction
+    ) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<InviteResponse> invites = inviteService.listUserInvites(userDetails.getUser());
-        return ResponseEntity.ok(invites);
+
+        Sort sort = Sort.by(direction, "i.status");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        return ResponseEntity.ok(inviteService.listUserInvites(userDetails.getUser(), pageRequest));
     }
 
     @PostMapping("/accept/{inviteId}")

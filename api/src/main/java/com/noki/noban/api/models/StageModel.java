@@ -1,10 +1,13 @@
 package com.noki.noban.api.models;
 
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity @Table(name = "tb_stage")
@@ -19,6 +22,17 @@ public class StageModel {
 
     @ManyToOne
     private ProjectModel project;
+
+    @OneToMany(mappedBy = "stage")
+    private List<TaskModel> tasks;
+
+    public List<TaskModel> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<TaskModel> tasks) {
+        this.tasks = tasks;
+    }
 
     public StageModel() {
     }

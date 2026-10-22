@@ -10,14 +10,32 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.noki.noban.api.dto.projection.ProjectMembership;
 import com.noki.noban.api.dto.projection.UserSummaryProject;
 import com.noki.noban.api.models.ProjectModel;
 import com.noki.noban.api.models.UserModel;
 
 public interface ProjectRepository extends JpaRepository<ProjectModel, UUID> {
     
-    @Query("SELECT p FROM ProjectModel p JOIN p.contributors c WHERE c.user = :user")
-    Page<ProjectModel> findProjectsByUser(@Param(value = "user") UserModel user, Pageable pageable);
+    @Query("""
+        SELECT 
+        new com.noki.noban.api.dto.projection.ProjectMembership(
+            p.id,
+            p.name,
+            p.description,
+            p.createdAt,
+            p.updatedAt,
+            new com.noki.noban.api.dto.response.UserResponse(
+                p.owner.id,
+                p.owner.name,
+                p.owner.email
+            ),
+            c.role,
+            c.joinedAt
+        )
+        FROM ProjectModel p JOIN p.contributors c WHERE c.user = :user
+    """)
+    Page<ProjectMembership> findProjectsByUser(@Param(value = "user") UserModel user, Pageable pageable);
 
     @Query("""
         SELECT 
@@ -25,7 +43,8 @@ public interface ProjectRepository extends JpaRepository<ProjectModel, UUID> {
             u.id,
             u.name,
             u.email,
-            c.role
+            c.role,
+            c.joinedAt
         ) 
         FROM ProjectModel p JOIN p.contributors c JOIN c.user u WHERE p = :project
         """

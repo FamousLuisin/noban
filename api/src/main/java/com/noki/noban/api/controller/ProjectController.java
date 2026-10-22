@@ -143,9 +143,25 @@ public class ProjectController {
 
     @GetMapping(path = "/{id}/invites")
     public ResponseEntity<?> listProjectInvites(
-        @PathVariable("id") String projectId
+        @PathVariable("id") String projectId,
+
+        @RequestParam(name = "size", defaultValue = "10") 
+        @Min(value = 1, message = "Size must be greater than 0")
+        @Max(value = 100, message = "Size must be less than or equal to 100")
+        Integer size, 
+
+        @RequestParam(name = "page", defaultValue = "0") 
+        @Min(value = 0, message = "Page must be greater than or equal to 0")
+        Integer page,
+
+        @RequestParam(name = "direction", defaultValue = "ASC") 
+        Direction direction
     ) {
         CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(inviteService.listProjectInvites(projectId, user.getUser()));
+
+        Sort sort = Sort.by(direction, "i.status");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        return ResponseEntity.ok(inviteService.listProjectInvites(projectId, user.getUser(), pageRequest));
     }
 }

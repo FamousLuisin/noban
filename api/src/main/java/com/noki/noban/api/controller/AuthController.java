@@ -2,6 +2,7 @@ package com.noki.noban.api.controller;
 
 import java.time.Duration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +27,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AuthController {
     
     private final AuthService authService;
+    private final Long refreshExpirationTime;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService,
+            @Value("${jwt.refresh-expiration-time}")Long refreshExpirationTime
+    ) {
         this.authService = authService;
+        this.refreshExpirationTime = refreshExpirationTime;
     }
 
     @PostMapping("/register")
@@ -36,7 +41,7 @@ public class AuthController {
         AuthResult result = authService.register(request);
         
         ResponseCookie cookie = ResponseCookie.from("refreshToken", result.refreshToken())
-            .maxAge(Duration.ofDays(30))
+            .maxAge(Duration.ofDays(0).plusMillis(refreshExpirationTime))
             .httpOnly(true)
             .secure(false)
             .path("/")

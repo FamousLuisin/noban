@@ -16,6 +16,7 @@ import com.noki.noban.api.exceptions.PermissionDeniedException;
 import com.noki.noban.api.exceptions.ResourceNotFoundException;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 
 @ControllerAdvice
@@ -105,6 +106,19 @@ public class ExceptionGlobalHandler {
         ExceptionResponse response = new ExceptionResponse(
             errorMessage,
             HttpStatus.UNAUTHORIZED,
+            request.getDescription(false)
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<ExceptionResponse> handleMaldormedToken(MalformedJwtException ex, WebRequest request){
+        String errorMessage = "malformed token";
+
+        ExceptionResponse response = new ExceptionResponse(
+            errorMessage, 
+            HttpStatus.UNAUTHORIZED, 
             request.getDescription(false)
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);

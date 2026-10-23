@@ -33,4 +33,5 @@ build/
 .vscode/
 
 ### keys ###
-*.key
+*/main/**/*.key
+*/main/**/*.pem

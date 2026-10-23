@@ -1,12 +1,16 @@
 package com.noki.noban.api.services;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.noki.noban.api.dto.projection.ProjectMembership;
 import com.noki.noban.api.dto.projection.UserSummaryProject;
 import com.noki.noban.api.dto.request.ProjectRequest;
 import com.noki.noban.api.dto.response.UserProjectsResponse;
@@ -14,17 +18,20 @@ import com.noki.noban.api.dto.response.ProjectResponse;
 import com.noki.noban.api.dto.response.ProjectResponseWithStages;
 import com.noki.noban.api.dto.response.ProjectUsersResponse;
 import com.noki.noban.api.dto.response.StageResponse;
+import com.noki.noban.api.dto.response.TaskResponse;
 import com.noki.noban.api.dto.response.UserResponse;
 import com.noki.noban.api.exceptions.PermissionDeniedException;
 import com.noki.noban.api.exceptions.ResourceNotFoundException;
 import com.noki.noban.api.models.ContributorsModel;
 import com.noki.noban.api.models.ProjectModel;
 import com.noki.noban.api.models.StageModel;
+import com.noki.noban.api.models.TaskModel;
 import com.noki.noban.api.models.UserModel;
 import com.noki.noban.api.models.ContributorsModel.RoleType;
 import com.noki.noban.api.repository.ContributorsRepository;
 import com.noki.noban.api.repository.ProjectRepository;
 import com.noki.noban.api.repository.StageRepository;
+import com.noki.noban.api.repository.TaskRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -34,11 +41,13 @@ public class ProjectService {
     private ProjectRepository projectRepository;
     private ContributorsRepository contributorsRepository;
     private StageRepository stageRepository;
+    private TaskRepository taskRepository;
 
-    public ProjectService(ProjectRepository projectRepository, ContributorsRepository contributorsRepository, StageRepository stageRepository){
+    public ProjectService(ProjectRepository projectRepository, ContributorsRepository contributorsRepository, StageRepository stageRepository, TaskRepository taskRepository){
         this.projectRepository = projectRepository;
         this.contributorsRepository = contributorsRepository;
         this.stageRepository = stageRepository;
+        this.taskRepository = taskRepository;
     }
 
     @Transactional 
@@ -55,7 +64,7 @@ public class ProjectService {
         List<StageModel> defaultStages = createDefaultStages(newProject);
 
         List<StageResponse> stageResponses = defaultStages.stream().map(stage -> {
-            return new StageResponse(stage.getId(), stage.getName(), stage.getPosition());
+            return new StageResponse(stage.getId(), stage.getName(), stage.getPosition(), new ArrayList<>());
         }).toList();
 
         return new ProjectResponseWithStages(
@@ -70,17 +79,9 @@ public class ProjectService {
     }
 
     public UserProjectsResponse listMyProjects(UserModel user, PageRequest pageRequest) {
-        Page<ProjectModel> projects = projectRepository.findProjectsByUser(user, pageRequest);
+        Page<ProjectMembership> projects = projectRepository.findProjectsByUser(user, pageRequest);
 
-        List<ProjectResponse> listProjects = projects.getContent().stream().map(p -> {
-            return new ProjectResponse(
-                p.getId(), 
-                p.getName(), 
-                p.getDescription(), 
-                p.getCreatedAt(), 
-                p.getUpdatedAt(), 
-                new UserResponse(p.getOwner().getId(), p.getOwner().getName(), p.getOwner().getEmail()));
-        }).toList();
+        List<ProjectMembership> listProjects = projects.getContent();;
 
         UserResponse userResponse = new UserResponse(user.getId(), user.getName(), user.getEmail());
 
@@ -126,9 +127,24 @@ public class ProjectService {
 
         commonProjectPermission(project, user);
 
-        List<StageResponse> stageResponses = project.getStages().stream().map(stage -> {
-            return new StageResponse(stage.getId(), stage.getName(), stage.getPosition());
-        }).toList();
+        List<TaskModel> taskList = taskRepository.findTaskByProject(project);
+
+        Map<Integer, StageResponse> mapStage = project
+            .getStages()
+            .stream()
+            .collect(Collectors.toMap(StageModel::getId, stage -> new StageResponse(stage.getId(), stage.getName(), stage.getPosition(), new ArrayList<>())));
+
+        for (TaskModel taskModel : taskList) {
+            TaskResponse taskResponse = new TaskResponse(
+                taskModel.getId(), 
+                taskModel.getTitle(), 
+                taskModel.getDescription(), taskModel.getPriority().name(), 
+                taskModel.getCreatedBy().getEmail(), 
+                taskModel.getAssignedTo() != null ? taskModel.getAssignedTo().getEmail() : null
+            );
+            
+            mapStage.get(taskModel.getStage().getId()).tasks().add(taskResponse);
+        }
 
         return new ProjectResponseWithStages(
             project.getId(), 
@@ -137,7 +153,7 @@ public class ProjectService {
             project.getCreatedAt(), 
             project.getUpdatedAt(),
             new UserResponse(project.getOwner().getId(), project.getOwner().getName(), project.getOwner().getEmail()), 
-            stageResponses
+            mapStage.values().stream().toList()
         );
     }
 

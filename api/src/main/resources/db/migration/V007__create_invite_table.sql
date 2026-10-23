@@ -7,7 +7,7 @@ CREATE TABLE tb_invites (
     receiver_id UUID NOT NULL,
     status VARCHAR(50) NOT NULL,
     sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_project FOREIGN KEY (project_id) REFERENCES tb_projects(id),
-    CONSTRAINT fk_sender FOREIGN KEY (sender_id) REFERENCES tb_users(id),
-    CONSTRAINT fk_receiver FOREIGN KEY (receiver_id) REFERENCES tb_users(id)
+    CONSTRAINT fk_project FOREIGN KEY (project_id) REFERENCES tb_projects(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sender FOREIGN KEY (sender_id) REFERENCES tb_users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_receiver FOREIGN KEY (receiver_id) REFERENCES tb_users(id) ON DELETE CASCADE
 );

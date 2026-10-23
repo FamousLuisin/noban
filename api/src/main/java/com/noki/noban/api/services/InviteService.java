@@ -3,10 +3,14 @@ package com.noki.noban.api.services;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.noki.noban.api.dto.request.InviteRequest;
 import com.noki.noban.api.dto.response.InviteResponse;
+import com.noki.noban.api.dto.response.ProjectInvitesResponse;
+import com.noki.noban.api.dto.response.UserInvitesResponse;
 import com.noki.noban.api.exceptions.ResourceNotFoundException;
 import com.noki.noban.api.models.ContributorsId;
 import com.noki.noban.api.models.ContributorsModel;
@@ -44,6 +48,8 @@ public class InviteService {
         ProjectModel project = projectRepository.findById(projectUUID)
             .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         
+        projectService.projectPermissionWithRole(project, sender, List.of(RoleType.ADMIN, RoleType.OWNER));
+
         UserModel receiver = userRepository.findByEmail(inviteRequest.receiver())
             .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -63,16 +69,16 @@ public class InviteService {
         inviteRepository.save(invite);
     }
 
-    public List<InviteResponse> listProjectInvites(String projectId, UserModel user) {
+    public ProjectInvitesResponse listProjectInvites(String projectId, UserModel user, PageRequest pageRequest) {
         UUID projectUUID = UUID.fromString(projectId);
         ProjectModel project = projectRepository.findById(projectUUID)
             .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         
         projectService.projectPermissionWithRole(project, user, List.of(RoleType.OWNER, RoleType.ADMIN));
         
-        List<InviteModel> invites = inviteRepository.findByProject(project);
+        Page<InviteModel> invites = inviteRepository.findByProject(project, pageRequest);
 
-        return invites.stream()
+        List<InviteResponse> invitesResponse = invites.stream()
             .map(invite -> new InviteResponse(
                 invite.getId(),
                 invite.getProject().getName(),
@@ -83,12 +89,16 @@ public class InviteService {
                 invite.getSentAt(),
                 invite.getStatus().toString()
             )).toList();
+        
+        return new ProjectInvitesResponse(invitesResponse, 
+            invites.getNumber(), invites.getSize(), invites.hasNext(), 
+            invites.getTotalElements(), invites.getTotalPages());
     }
 
-    public List<InviteResponse> listUserInvites(UserModel user) {
-        List<InviteModel> invites = inviteRepository.findByReceiver(user);
+    public UserInvitesResponse listUserInvites(UserModel user, PageRequest pageRequest) {
+        Page<InviteModel> invites = inviteRepository.findByReceiver(user, pageRequest);
 
-        return invites.stream()
+        List<InviteResponse> invitesResponse = invites.stream()
             .map(invite -> new InviteResponse(
                 invite.getId(),
                 invite.getProject().getName(),
@@ -99,6 +109,13 @@ public class InviteService {
                 invite.getSentAt(),
                 invite.getStatus().toString()
             )).toList();
+
+        return new UserInvitesResponse(invitesResponse, 
+            invites.getNumber(), 
+            invites.getSize(), 
+            invites.hasNext(), 
+            invites.getTotalElements(), 
+            invites.getTotalPages());
     }
 
     @Transactional 

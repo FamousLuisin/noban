@@ -22,3 +22,8 @@ jwt:
   issuer: ${JWT_ISSUER:noban-api}
   access-expiration-time: ${JWT_ACCESS_EXPIRATION_TIME:900000}
   refresh-expiration-time: ${JWT_REFRESH_EXPIRATION_TIME:2592000000}
+
+cors:
+  origin: ${ORIGIN:http://localhost:8081}
+  method: ${METHOD:GET,POST,PUT,PATCH,DELETE,OPTIONS}
+  header: ${HEADER:Authorization,Content-Type}

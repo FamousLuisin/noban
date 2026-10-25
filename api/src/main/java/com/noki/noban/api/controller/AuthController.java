@@ -28,24 +28,22 @@ public class AuthController {
     
     private final AuthService authService;
     private final Long refreshExpirationTime;
+    private final Boolean secure;
 
     public AuthController(AuthService authService,
-            @Value("${jwt.refresh-expiration-time}")Long refreshExpirationTime
+            @Value("${jwt.refresh-expiration-time}")Long refreshExpirationTime,
+            @Value("${jwt.secure}")Boolean secure
     ) {
         this.authService = authService;
         this.refreshExpirationTime = refreshExpirationTime;
+        this.secure = secure;
     }
 
     @PostMapping("/register")
     public ResponseEntity<JwtResponse> register(@RequestBody @Valid RegisterRequest request) {
         AuthResult result = authService.register(request);
         
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", result.refreshToken())
-            .maxAge(Duration.ofDays(0).plusMillis(refreshExpirationTime))
-            .httpOnly(true)
-            .secure(false)
-            .path("/")
-            .build();
+        ResponseCookie cookie = generateRefreshCookie(result.refreshToken());
 
         return ResponseEntity
             .ok()
@@ -57,13 +55,8 @@ public class AuthController {
     public ResponseEntity<JwtResponse> login(@RequestBody @Valid LoginRequest request) {
         AuthResult result = authService.login(request);
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", result.refreshToken())
-            .maxAge(Duration.ofDays(30))
-            .httpOnly(true)
-            .secure(false)
-            .path("/")
-            .build();
-
+        ResponseCookie cookie = generateRefreshCookie(result.refreshToken());
+        
         return ResponseEntity
             .ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -74,12 +67,7 @@ public class AuthController {
     public ResponseEntity<JwtResponse> refreshToken(@CookieValue(name = "refreshToken", required = true) String token) {
         AuthResult result = authService.refreshToken(token);
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", result.refreshToken())
-            .maxAge(Duration.ofDays(30))
-            .httpOnly(true)
-            .secure(false)
-            .path("/")
-            .build();
+        ResponseCookie cookie = generateRefreshCookie(result.refreshToken());
 
         return ResponseEntity
             .ok()
@@ -100,6 +88,16 @@ public class AuthController {
         return ResponseEntity
             .noContent()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .build();
+    }
+
+    private ResponseCookie generateRefreshCookie(String refreshToken){  
+        return ResponseCookie.from("refreshToken", refreshToken)
+            .maxAge(Duration.ofDays(0).plusMillis(refreshExpirationTime))
+            .httpOnly(true)
+            .secure(secure)
+            .sameSite("Lax")
+            .path("/")
             .build();
     }
     

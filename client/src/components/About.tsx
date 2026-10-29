@@ -1,14 +1,12 @@
+import sticky from "@/assets/Colorful Sticky Notes.png"
+
 export default function About(){
     return (
-        <div className="flex flex-1 items-center px-2">
-            <div className="border-2 p-4 w-3xl max-h-96 backdrop-blur-xs rounded-4xl flex flex-col items-center gap-8">
-                <h1 className="text-2xl font-bold text-secondary">Transforme suas ideias em realidade</h1>
-                <p className="text-center text-secondary text-xl leading-6">
-                   O Noban é o espaço ideal para organizar tarefas, gerenciar projetos e transformar ideias em resultados. Com quadros Kanban e metodologias ágeis, 
-                   acompanhe cada etapa do seu fluxo de trabalho, defina prioridades e mantenha sua equipe alinhada. 
-                   Tenha mais clareza sobre seus objetivos, colabore de forma eficiente e avance em cada projeto com organização e propósito.
-                </p>
-                <p className="text-center font-bold text-secondary text-xl">Seu trabalho sempre em movimento.</p>
+        <div className="flex flex-1" id="about">
+            <div className="absolute w-3/5 h-3/5 bg-gray-200 right-0 bottom-0 rounded-3xl "></div>
+            <img src={sticky} className="absolute w-3/5 h-3/5 right-32 bottom-32 object-contains rounded-3xl [@media(max-height:920px)]:right-0 [@media(max-height:920px)]:bottom-0 max-lg:w-full" />
+            <div className="max-w-5xl rounded-xl flex flex-col items-center gap-8 z-10">
+                <h1 className="text-7xl font-bold text-primary max-sm:text-6xl">Transforme suas ideias em <span className="text-gray-700">realidade</span></h1>
             </div>
         </div>
     )

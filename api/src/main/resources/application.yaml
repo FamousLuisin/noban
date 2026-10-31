@@ -25,6 +25,6 @@ jwt:
   secure: ${JWT_SECURE:false}
 
 cors:
-  origin: ${ORIGIN:http://localhost:8081}
+  origin: ${ORIGIN:http://localhost:8081,http://localhost:5173}
   method: ${METHOD:GET,POST,PUT,PATCH,DELETE,OPTIONS}
   header: ${HEADER:Authorization,Content-Type}

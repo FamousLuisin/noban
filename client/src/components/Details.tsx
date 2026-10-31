@@ -11,7 +11,7 @@ export default function Details(){
     let teamMessage = `Reúna seu time em um único espaço de colaboração. 
     Compartilhe tarefas, acompanhe o progresso e mantenha todos alinhados para alcançar objetivos em conjunto.`
     return (
-        <div className="flex flex-col h-full w-full items-center gap-5 py-3" id="details">
+        <div className="flex flex-col h-full w-full items-center gap-5 py-3 scroll-mt-20 px-7" id="details">
             <h1 className="text-primary text-4xl font-bold">Detalhes</h1>
             <div className="flex flex-1 h-full w-full items-center justify-evenly max-[1200px]:flex-col gap-5">
                 <FlashCard message={onlineMessage} image={online}/>

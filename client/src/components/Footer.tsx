@@ -6,8 +6,7 @@ import gmail from "@/assets/gmail.png"
 
 export default function Footer(){
     return (
-        <div className="grid grid-cols-3 gap-3 w-full py-2">
-            <hr className="w-full col-span-3"/>
+        <div className="grid grid-cols-3 w-full py-3 rounded-t-3xl border-t-2 px-7">
             <div><img src={logo} alt="" className="w-8"/></div>
             <div className="flex items-center justify-center gap-2"><Copyright /> Noki</div>
             <div className="flex flex-col items-end justify-center">

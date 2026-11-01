@@ -48,7 +48,7 @@ public class AuthController {
         return ResponseEntity
             .ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
-            .body(new JwtResponse(result.accessToken(), result.expiresIn()));
+            .body(new JwtResponse(result.accessToken(), result.expiresIn(), result.name()));
     }
 
     @PostMapping("/login")
@@ -60,7 +60,7 @@ public class AuthController {
         return ResponseEntity
             .ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
-            .body(new JwtResponse(result.accessToken(), result.expiresIn()));
+            .body(new JwtResponse(result.accessToken(), result.expiresIn(), result.name()));
     }
 
     @GetMapping("/refresh")
@@ -72,7 +72,7 @@ public class AuthController {
         return ResponseEntity
             .ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
-            .body(new JwtResponse(result.accessToken(), result.expiresIn()));
+            .body(new JwtResponse(result.accessToken(), result.expiresIn(), result.name()));
     }
 
     @GetMapping("/logout")

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.noki.noban.api.dto.request.LoginRequest;
 import com.noki.noban.api.dto.request.RegisterRequest;
+import com.noki.noban.api.exceptions.ResourceNotFoundException;
 import com.noki.noban.api.dto.internal.AuthResult;
 import com.noki.noban.api.models.RoleModel;
 import com.noki.noban.api.models.UserModel;
@@ -68,7 +69,8 @@ public class AuthService {
         return new AuthResult(
             jwtService.generateToken(userDetails.getUsername(), TokenType.ACCESS),
             jwtService.generateToken(userDetails.getUsername(), TokenType.REFRESH),
-            jwtService.getAccessExpiresIn()
+            jwtService.getAccessExpiresIn(),
+            userDetails.getUser().getName()
         );
     }
 
@@ -85,17 +87,21 @@ public class AuthService {
 		return new AuthResult(
             jwtService.generateToken(userDetails.getUsername(), TokenType.ACCESS),
             jwtService.generateToken(userDetails.getUsername(), TokenType.REFRESH),
-            jwtService.getAccessExpiresIn()
+            jwtService.getAccessExpiresIn(),
+            userDetails.getUser().getName()
         );
 	}
 
     public AuthResult refreshToken(String refreshToken){
-        String username = jwtService.getSubject(refreshToken, TokenType.REFRESH);
+        String email = jwtService.getSubject(refreshToken, TokenType.REFRESH);
+        UserModel user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return new AuthResult(
-            jwtService.generateToken(username, TokenType.ACCESS),
-            jwtService.generateToken(username, TokenType.REFRESH),
-            jwtService.getAccessExpiresIn()
+            jwtService.generateToken(email, TokenType.ACCESS),
+            jwtService.generateToken(email, TokenType.REFRESH),
+            jwtService.getAccessExpiresIn(),
+            user.getName()
         );
     }
 

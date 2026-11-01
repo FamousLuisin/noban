@@ -53,8 +53,8 @@ public class AuthControllerTest {
     @Test
     void loginShouldReturnJwtResponse() throws Exception{
         LoginRequest loginRequest = new LoginRequest("teste@email", "SenhaForte123/");
-        AuthResult authResult = new AuthResult("access", "refresh", 900L);
-        JwtResponse jwtResponse = new JwtResponse("access", 900L);
+        AuthResult authResult = new AuthResult("access", "refresh", 900L, "teste");
+        JwtResponse jwtResponse = new JwtResponse("access", 900L, "teste");
 
         when(authService.login(any()))
             .thenReturn(authResult);
@@ -120,8 +120,8 @@ public class AuthControllerTest {
 
     @Test
     void registerShouldReturnJwtResponse() throws Exception{
-        AuthResult authResult = new AuthResult("access", "refresh", 900L);
-        JwtResponse jwtResponse = new JwtResponse("access", 900L);
+        AuthResult authResult = new AuthResult("access", "refresh", 900L, "teste");
+        JwtResponse jwtResponse = new JwtResponse("access", 900L, "teste");
         RegisterRequest registerRequest = new RegisterRequest("teste", "teste@email", "SenhaForte123/");
 
         when(authService.register(registerRequest)).thenReturn(authResult);
@@ -159,8 +159,8 @@ public class AuthControllerTest {
 
     @Test
     void refreshShouldReturnJwtResponse(){
-        AuthResult authResult = new AuthResult("access", "refresh", 900L);
-        JwtResponse jwtResponse = new JwtResponse("access", 900L);
+        AuthResult authResult = new AuthResult("access", "refresh", 900L, "teste");
+        JwtResponse jwtResponse = new JwtResponse("access", 900L, "teste");
         
         when(authService.refreshToken(any())).thenReturn(authResult);
 

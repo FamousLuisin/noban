@@ -6,32 +6,28 @@ import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "
 import { useState } from "react"
 import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { Button } from "./ui/button"
+import type { RegisterDTO } from "@/types/AuthType"
+import { useAuth } from "@/context/AuthContext"
+import { useNavigate } from "react-router"
 
 export default function RegisterForm(){
     const [showPassword, setShowPassword] = useState<Boolean>(false)
+    const registerMutation  = useAuth().authRegister()
+    const navigate = useNavigate()
     
     const form = useForm({
         defaultValues: {
             name: "",
             email: "",
             password: ""
-        },
+        } as RegisterDTO,
         validators: {
             onSubmit: registerSchema
         },
         onSubmit: async({ value }) => {
-            const url = `http://localhost:8080/auth/register`
-            
-            const response = await fetch(url, {
-                                method: "POST",
-                                headers: {"Content-Type": "application/json"},
-                                body: JSON.stringify(value)
-                            })
-            
-            const json = await response.json()
-
-            console.log(json)
-            console.log(value)
+            await registerMutation.mutate(value, {
+                onSuccess: () => navigate("/")
+            })
         }
     })
     
@@ -128,6 +124,7 @@ export default function RegisterForm(){
                                             aria-label={showPassword ? "Hide password" : "Show password"}
                                             onClick={() => setShowPassword(!showPassword)}
                                             size="icon-xs"
+                                            type="button"
                                         >
                                             {showPassword ? (
                                             <EyeOffIcon aria-hidden="true" />

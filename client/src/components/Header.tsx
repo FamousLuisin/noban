@@ -17,15 +17,7 @@ export default function Header(){
                 <li><Button variant="link" className="text-primary-text text-md"><a href="#about">Sobre</a></Button></li>
                 <li><Button variant="link" className="text-primary-text text-md"><a href="#details">Detalhes</a></Button></li>
             </ul>
-            <div className="hidden justify-end items-center gap-3 sm:flex">
-                <Link to="/login">
-                    <Button variant="secondary" className="p-4 cursor-pointer">Login</Button>
-                </Link>
-                <Link to="/register">
-                    <Button className="p-4 cursor-pointer">Register</Button>
-                </Link>
-            </div>
-            <div className="flex justify-end items-center sm:hidden">
+            <div className="flex justify-end items-center">
                 <AuthDropdown />
             </div>
         </header>

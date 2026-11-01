@@ -6,31 +6,27 @@ import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "
 import { useState } from "react"
 import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { Button } from "./ui/button"
+import type { LoginDTO } from "@/types/AuthType"
+import { useAuth } from "@/context/AuthContext"
+import { useNavigate } from "react-router"
 
 export default function LoginForm(){
-    const [showPassword, setShowPassword] = useState<Boolean>(false)
+    const [showPassword, setShowPassword] = useState<boolean>(false)
+    const loginMutation  = useAuth().authLogin()
+    const navigate = useNavigate()
     
     const form = useForm({
         defaultValues: {
             email: "",
             password: ""
-        },
+        } as LoginDTO,
         validators: {
             onSubmit: loginSchema
         },
-        onSubmit: async({ value }) => {
-            const url = `http://localhost:8080/auth/login`
-            
-            const response = await fetch(url, {
-                                method: "POST",
-                                headers: {"Content-Type": "application/json"},
-                                body: JSON.stringify(value)
-                            })
-            
-            const json = await response.json()
-
-            console.log(json)
-            console.log(value)
+        onSubmit: async({ value }) => {    
+            await loginMutation.mutate(value, {
+                onSuccess: () => navigate("/")
+            })
         }
     })
     
@@ -41,6 +37,7 @@ export default function LoginForm(){
                 e.preventDefault()
                 form.handleSubmit()
             }}
+            className="flex flex-col gap-4"
         >
             <FieldGroup>
                 <form.Field
@@ -96,6 +93,7 @@ export default function LoginForm(){
                                     />
                                     <InputGroupAddon align="inline-end">
                                         <InputGroupButton
+                                            type="button"
                                             aria-label={showPassword ? "Hide password" : "Show password"}
                                             onClick={() => setShowPassword(!showPassword)}
                                             size="icon-xs"
@@ -117,9 +115,20 @@ export default function LoginForm(){
                     }}
                 />
                 <div className="flex justify-end">
-                    <Field className="w-1/4 "><Button type="submit" form="login-form" className="cursor-pointer">Submit</Button></Field>
+                    <Field className="w-1/4 ">
+                        <Button type="submit" form="login-form" className="cursor-pointer" disabled={loginMutation.isPending}>
+                            {loginMutation.isPending ? "Entrando..." : "Submit"}
+                        </Button>
+                    </Field>
                 </div>
             </FieldGroup>
+            {loginMutation.isError && (
+                <div className="border-2 border-destructive rounded-3xl bg-destructive/10">
+                    <p className="p-3 text-destructive">
+                        Não foi possível entrar. Confira suas credenciais e tente novamente.
+                    </p>
+                </div>
+            )}
         </form>
     )
 }

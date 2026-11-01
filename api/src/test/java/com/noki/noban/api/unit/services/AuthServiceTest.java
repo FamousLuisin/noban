@@ -7,6 +7,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +28,7 @@ import com.noki.noban.api.dto.request.LoginRequest;
 import com.noki.noban.api.dto.request.RegisterRequest;
 import com.noki.noban.api.mocks.RoleMock;
 import com.noki.noban.api.mocks.UserDetailsMock;
+import com.noki.noban.api.mocks.UserModelMock;
 import com.noki.noban.api.models.RoleModel;
 import com.noki.noban.api.models.UserModel;
 import com.noki.noban.api.models.RoleModel.RoleType;
@@ -70,6 +73,8 @@ public class AuthServiceTest {
 
     private RoleMock roleMock = new RoleMock();
 
+    private UserModelMock userMock = new UserModelMock();
+
     @BeforeEach
     void setUp(){
         RoleModel roleModel = roleMock.getRoleUser();
@@ -83,6 +88,7 @@ public class AuthServiceTest {
         Mockito.when(jwtService.generateToken(anyString(), eq(TokenType.REFRESH))).thenReturn("refresh");
         Mockito.when(jwtService.getAccessExpiresIn()).thenReturn(900L);
         Mockito.when(jwtService.getSubject(anyString(), eq(TokenType.REFRESH))).thenReturn("teste@email");
+        Mockito.when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(userMock.getUserModel()));
     }
 
     @Test
@@ -139,10 +145,12 @@ public class AuthServiceTest {
         Mockito.verify(jwtService, times(1)).generateToken(eq("teste@email"), eq(TokenType.REFRESH));
         Mockito.verify(jwtService, times(1)).getAccessExpiresIn();
         Mockito.verify(jwtService, times(1)).getSubject(eq("token"), eq(TokenType.REFRESH));
+        Mockito.verify(userRepository, times(1)).findByEmail(anyString());
 
         assertNotNull(result);
         assertEquals("access", result.accessToken());
         assertEquals("refresh", result.refreshToken());
         assertEquals(900L, result.expiresIn());
+        assertEquals("teste", result.name());
     }
 }

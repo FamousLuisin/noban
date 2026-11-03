@@ -7,22 +7,22 @@ import gmail from "@/assets/gmail.png"
 export default function Footer(){
     return (
         <div className="grid grid-cols-3 w-full py-3 rounded-t-3xl border-t-2 px-7">
-            <div><img src={logo} alt="" className="w-8"/></div>
+            <div><img src={logo} alt="" className="w-8 dark:invert"/></div>
             <div className="flex items-center justify-center gap-2"><Copyright /> Noki</div>
             <div className="flex flex-col items-end justify-center">
                 <ul className="flex items-center gap-5">
                     <li>
-                        <a href="https://www.linkedin.com/in/luis-filipe-melo-de-miranda/" target="_blank"  className="hover:text-blue-400">
+                        <a href="https://www.linkedin.com/in/luis-filipe-melo-de-miranda/" target="_blank"  className="dark:invert">
                             <img src={linkedin} alt="" className="w-8"/>
                         </a>
                     </li>
                     <li>
-                        <a href="https://github.com/FamousLuisin" target="_blank"  className="hover:text-blue-400">
+                        <a href="https://github.com/FamousLuisin" target="_blank"  className="dark:invert">
                             <img src={github} alt="" className="w-8"/>
                         </a>
                     </li>
                     <li>
-                        <a href="mailto:lufizinmelo@gmail.com" className="hover:text-blue-400">
+                        <a href="mailto:lufizinmelo@gmail.com" className="dark:invert">
                             <img src={gmail} alt="" className="w-8"/>
                         </a>
                     </li>

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import AuthDropdown from "@/components/AuthDropdown"
 import logo from "@/assets/logo.png"
 import { Link } from "react-router"
+import { ModeToggle } from "./ModeToggle"
 
 export default function Header(){
     return (
@@ -9,7 +10,7 @@ export default function Header(){
             <h1 className="font-bold max-sm:col-span-2">
                 <Link to="/" className="flex w-fit">
                     <Button variant="link" className="flex items-center text-primary-text text-4xl hover:no-underline cursor-pointer w-fit">
-                        <img src={logo} alt="" className="flex w-12"/>Noban
+                        <img src={logo} alt="" className="flex w-12 dark:invert"/>Noban
                     </Button>
                 </Link>
             </h1>
@@ -17,7 +18,8 @@ export default function Header(){
                 <li><Button variant="link" className="text-primary-text text-md"><a href="#about">Sobre</a></Button></li>
                 <li><Button variant="link" className="text-primary-text text-md"><a href="#details">Detalhes</a></Button></li>
             </ul>
-            <div className="flex justify-end items-center">
+            <div className="flex justify-end items-center gap-2">
+                <ModeToggle />
                 <AuthDropdown />
             </div>
         </header>

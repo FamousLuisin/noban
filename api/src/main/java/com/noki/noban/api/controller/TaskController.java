@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.noki.noban.api.dto.request.TaskChangeAssignedToRequest;
+import com.noki.noban.api.dto.request.TaskChangePriorityRequest;
 import com.noki.noban.api.dto.request.TaskChangeStageRequest;
 import com.noki.noban.api.dto.request.TaskRequest;
 import com.noki.noban.api.dto.request.TaskUpdateRequest;
@@ -69,6 +70,18 @@ public class TaskController {
             @RequestBody @Valid TaskChangeAssignedToRequest taskRequest) {
         CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         taskService.changeAssignedTo(projectId, taskId, user.getUser(), taskRequest);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{taskId}/priority")
+    public ResponseEntity<Void> changePriorityTask(
+            @PathVariable("projectId") String projectId,
+            @PathVariable("taskId") String taskId,
+            @RequestBody @Valid TaskChangePriorityRequest taskRequest) {
+        
+        CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        taskService.changePriority(projectId, taskId, user.getUser(), taskRequest);
 
         return ResponseEntity.noContent().build();
     }

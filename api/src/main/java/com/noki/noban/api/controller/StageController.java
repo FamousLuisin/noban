@@ -39,7 +39,7 @@ public class StageController {
 
     @PatchMapping(path = "/order")
     public ResponseEntity<Void> changeOrderStages(
-        @RequestBody StageOrderRequest stageOrderRequest,
+        @RequestBody @Valid StageOrderRequest stageOrderRequest,
         @PathVariable("projectId") String projectId
     ) {
         CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

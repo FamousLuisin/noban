@@ -6,10 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record TaskRequest(
-    @NotBlank String title, 
-    @NotBlank String description, 
-    @NotNull  Priority priority, 
-    String emailAssignedTo, 
-    @NotNull Integer stage) {
-    
+    @NotBlank(message = "Title is required") String title, 
+    @NotBlank(message = "Description is required") String description, 
+    @NotNull(message = "Priority is required") Priority priority, 
+    @NotBlank(message = "Email of the user to whom the task is assigned is required") String emailAssignedTo, 
+    @NotNull(message = "Stage is required") Integer stage) {
 }

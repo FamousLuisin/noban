@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.noki.noban.api.dto.request.TaskChangeAssignedToRequest;
+import com.noki.noban.api.dto.request.TaskChangePriorityRequest;
 import com.noki.noban.api.dto.request.TaskChangeStageRequest;
 import com.noki.noban.api.dto.request.TaskRequest;
 import com.noki.noban.api.dto.request.TaskUpdateRequest;
@@ -102,7 +103,6 @@ public class TaskService {
         
         task.setTitle(taskUpdate.title());
         task.setDescription(taskUpdate.description());
-        task.setPriority(taskUpdate.priority());
 
         taskRepository.save(task);
 
@@ -153,6 +153,28 @@ public class TaskService {
         }
 
         return task;
+    }
+
+    @Transactional 
+    public void changePriority(String projectId, String taskId, UserModel user,
+            TaskChangePriorityRequest taskRequest) {
+        UUID projectUUID = UUID.fromString(projectId);
+        UUID taskUUID = UUID.fromString(taskId);
+
+        ProjectModel project = projectRepository.findById(projectUUID)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+        
+        projectService.projectPermissionWithRole(project, user, List.of(RoleType.OWNER, RoleType.ADMIN));
+
+        TaskModel task = taskRepository.findById(taskUUID)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
+        if (!task.getStage().getProject().getId().equals(projectUUID)){
+                throw new ResourceNotFoundException("Task does not belong to the specified project");
+        }
+
+        task.setPriority(taskRequest.priority());
+        taskRepository.save(task);
     }
     
 }

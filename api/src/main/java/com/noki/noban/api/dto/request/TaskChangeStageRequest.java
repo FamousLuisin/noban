@@ -1,5 +1,8 @@
 package com.noki.noban.api.dto.request;
 
-public record TaskChangeStageRequest(Integer stageId) {
+import jakarta.validation.constraints.NotNull;
+
+public record TaskChangeStageRequest(
+    @NotNull (message = "Stage ID is required") Integer stageId) {
     
 }

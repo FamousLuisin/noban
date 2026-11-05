@@ -8,6 +8,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 @TestConfiguration(proxyBeanMethods = false)
 public class TestContainerConfig {
     
+    @SuppressWarnings("resource")
     @ServiceConnection
     @Bean
     public PostgreSQLContainer getContainer(){

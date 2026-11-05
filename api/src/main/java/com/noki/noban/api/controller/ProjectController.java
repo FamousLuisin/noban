@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.noki.noban.api.controller.docs.ProjectControllerDocs;
 import com.noki.noban.api.dto.request.InviteRequest;
 import com.noki.noban.api.dto.request.ProjectRequest;
 import com.noki.noban.api.dto.response.UserProjectsResponse;
+import com.noki.noban.api.dto.response.ProjectInvitesResponse;
 import com.noki.noban.api.dto.response.ProjectResponse;
 import com.noki.noban.api.dto.response.ProjectResponseWithStages;
 import com.noki.noban.api.dto.response.ProjectUsersResponse;
@@ -33,7 +35,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/api/projects")
-public class ProjectController {
+public class ProjectController implements ProjectControllerDocs {
 
     private final ProjectService projectService;
     private final InviteService inviteService;
@@ -142,7 +144,7 @@ public class ProjectController {
     }
 
     @GetMapping(path = "/{id}/invites")
-    public ResponseEntity<?> listProjectInvites(
+    public ResponseEntity<ProjectInvitesResponse> listProjectInvites(
         @PathVariable("id") String projectId,
 
         @RequestParam(name = "size", defaultValue = "10") 

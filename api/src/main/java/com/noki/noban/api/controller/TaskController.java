@@ -3,6 +3,7 @@ package com.noki.noban.api.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.noki.noban.api.controller.docs.TaskControllerDocs;
 import com.noki.noban.api.dto.request.TaskChangeAssignedToRequest;
 import com.noki.noban.api.dto.request.TaskChangePriorityRequest;
 import com.noki.noban.api.dto.request.TaskChangeStageRequest;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController 
 @RequestMapping("/api/projects/{projectId}/tasks")
-public class TaskController {
+public class TaskController implements TaskControllerDocs {
     
     private final TaskService taskService;
 

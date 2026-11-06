@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.noki.noban.api.controller.docs.StageControllerDocs;
 import com.noki.noban.api.dto.request.StageOrderRequest;
 import com.noki.noban.api.dto.request.StageRequest;
 import com.noki.noban.api.security.user.CustomUserDetails;
@@ -21,7 +22,7 @@ import jakarta.validation.Valid;
 
 @RestController 
 @RequestMapping("/api/projects/{projectId}/stages")
-public class StageController {
+public class StageController implements StageControllerDocs {
     
     private final StageService stageService;
 

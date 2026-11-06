@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.noki.noban.api.controller.docs.InviteControllerDocs;
+import com.noki.noban.api.dto.response.UserInvitesResponse;
 import com.noki.noban.api.security.user.CustomUserDetails;
 import com.noki.noban.api.services.InviteService;
 
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController 
 @RequestMapping("/api/invites")
-public class InviteController {
+public class InviteController implements InviteControllerDocs {
     
     private final InviteService inviteService;
 
@@ -31,7 +33,7 @@ public class InviteController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<?> getMyInvites(
+    public ResponseEntity<UserInvitesResponse> getMyInvites(
         @RequestParam(name = "size", defaultValue = "10") 
         @Min(value = 1, message = "Size must be greater than 0")
         @Max(value = 100, message = "Size must be less than or equal to 100")

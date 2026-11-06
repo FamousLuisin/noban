@@ -5,11 +5,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.noki.noban.api.controller.docs.VersionControllerDocs;
 import com.noki.noban.api.models.Version;
 
 @RestController
 @RequestMapping("/api/version")
-public class VersionController {
+public class VersionController implements VersionControllerDocs {
     
     @Value("${spring.application.version}")
     private String version;

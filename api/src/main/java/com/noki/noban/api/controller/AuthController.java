@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.noki.noban.api.controller.docs.AuthControllerDocs;
 import com.noki.noban.api.dto.internal.AuthResult;
 import com.noki.noban.api.dto.request.LoginRequest;
 import com.noki.noban.api.dto.request.RegisterRequest;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/auth")
-public class AuthController {
+public class AuthController implements AuthControllerDocs {
     
     private final AuthService authService;
     private final Long refreshExpirationTime;

@@ -2,6 +2,8 @@ package com.noki.noban.api.security.filter;
 
 import java.io.IOException;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -38,12 +40,7 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        
-        if (request.getRequestURI().startsWith("/auth")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
+                
         String token = recoveryToken(request);
 
         try {
@@ -74,4 +71,13 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
     
+    @Bean
+    public FilterRegistrationBean<UserAuthenticationFilter> disableFilterRegistration(UserAuthenticationFilter filter) {
+        FilterRegistrationBean<UserAuthenticationFilter> registration =
+                new FilterRegistrationBean<>(filter);
+
+        registration.setEnabled(false);
+
+        return registration;
+    }
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.noki.noban.api.controller.docs.UserControllerDocs;
 import com.noki.noban.api.dto.request.UserChangeEmailRequest;
 import com.noki.noban.api.dto.request.UserChangeNameRequest;
 import com.noki.noban.api.dto.request.UserChangePasswordRequest;
@@ -19,7 +20,7 @@ import jakarta.validation.Valid;
 
 @RestController 
 @RequestMapping("/api/users")
-public class UserController {
+public class UserController implements UserControllerDocs {
     
     private final UserService userService;
 

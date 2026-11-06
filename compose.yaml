@@ -31,6 +31,12 @@ services:
     networks:
       - noban-network
 
+  kafka:
+    image: apache/kafka:latest
+    container_name: broker
+    ports:
+      - "9092:9092"
+
 volumes:
   noban-data:
 networks:

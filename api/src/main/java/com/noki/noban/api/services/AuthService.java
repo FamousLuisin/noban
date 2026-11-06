@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.noki.noban.api.dto.request.LoginRequest;
 import com.noki.noban.api.dto.request.RegisterRequest;
 import com.noki.noban.api.exceptions.ResourceNotFoundException;
+import com.noki.noban.api.kafka.producer.ProducerService;
 import com.noki.noban.api.dto.internal.AuthResult;
 import com.noki.noban.api.models.RoleModel;
 import com.noki.noban.api.models.UserModel;
@@ -30,18 +31,21 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final ProducerService producerService;
 
     public AuthService(
             UserRepository userRepository, 
             RoleRepository roleRepository, 
             PasswordEncoder passwordEncoder, 
             JwtService jwtService, 
-            AuthenticationManager authenticationManager) {
+            AuthenticationManager authenticationManager,
+            ProducerService producerService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.producerService = producerService;
     }
 
     @Transactional
@@ -65,7 +69,9 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-			
+		
+        producerService.sendWelcomeEmail(userDetails.getUsername(), userDetails.getUser().getName());
+
         return new AuthResult(
             jwtService.generateToken(userDetails.getUsername(), TokenType.ACCESS),
             jwtService.generateToken(userDetails.getUsername(), TokenType.REFRESH),
